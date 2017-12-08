@@ -24,6 +24,7 @@ button {
   background-image: none;
   border: 1px solid transparent;
   border-radius: 4px;
+  outline: none;
 }
 button.disable {
   background-color: #d9534f;

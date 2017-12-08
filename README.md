@@ -2,5 +2,4 @@
 
 ## Commands
 
-* Right-arrow: Expand all lines, nested as well
-* Left-arrow: Collapse all lines, nested as well
+* Toggle on/off from the browser action button

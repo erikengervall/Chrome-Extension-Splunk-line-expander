@@ -21,7 +21,7 @@ button.addEventListener("click", function(e) {
       response
     ) {
       console.log("response", response);
-      if (response == "OK") {
+      if (response == "Thanks Mr. Extension") {
         updateUi(isEnabled);
       }
     });
@@ -30,11 +30,11 @@ button.addEventListener("click", function(e) {
 
 function updateUi(isEnabled) {
   if (isEnabled == 1) {
-    toggleStatus.innerText = "STATUS: Enabled";
+    // toggleStatus.innerText = "STATUS: Enabled";
     button.innerText = "DISABLE";
     button.className = "disable";
   } else if (isEnabled == 0) {
-    toggleStatus.innerText = "STATUS: Disabled";
+    // toggleStatus.innerText = "STATUS: Disabled";
     button.innerText = "ENABLE";
     button.className = "enable";
   }
