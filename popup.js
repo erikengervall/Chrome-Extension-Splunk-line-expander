@@ -1,41 +1,30 @@
-var isEnabled = window.localStorage.getItem("SPLUNK_INTERVAL_ENABLED");
-var button = document.getElementById("toggle");
-var toggleStatus = document.getElementById("toggleStatus");
+var toggleButton = document.getElementById("toggle");
 
-if (isEnabled == null) {
-  window.localStorage.setItem("SPLUNK_INTERVAL_ENABLED", 0);
-  isEnabled = window.localStorage.getItem("SPLUNK_INTERVAL_ENABLED");
-}
-
-updateUi(isEnabled);
-
-button.addEventListener("click", function(e) {
-  var isEnabled = window.localStorage.getItem("SPLUNK_INTERVAL_ENABLED");
-  if (isEnabled == 1) window.localStorage.setItem("SPLUNK_INTERVAL_ENABLED", 0);
-  if (isEnabled == 0) window.localStorage.setItem("SPLUNK_INTERVAL_ENABLED", 1);
-  isEnabled = window.localStorage.getItem("SPLUNK_INTERVAL_ENABLED");
+toggleButton.addEventListener("click", function(e) {
+  storage.getItem(KEY) == 1 ? storage.setItem(KEY, 0) : storage.setItem(KEY, 1);
 
   // https://developer.chrome.com/extensions/messaging
   chrome.tabs.query({ active: true, currentWindow: true }, function(tabs) {
-    chrome.tabs.sendMessage(tabs[0].id, { enabled: isEnabled }, function(
-      response
-    ) {
-      console.log("response", response);
-      if (response == "Thanks Mr. Extension") {
-        updateUi(isEnabled);
+    chrome.tabs.sendMessage(
+      tabs[0].id,
+      {
+        enabled: storage.getItem(KEY)
+      },
+      function(response) {
+        if (response == "Thanks Mr. Extension") updateUi();
       }
-    });
+    );
   });
 });
 
-function updateUi(isEnabled) {
-  if (isEnabled == 1) {
-    // toggleStatus.innerText = "STATUS: Enabled";
-    button.innerText = "DISABLE";
-    button.className = "disable";
-  } else if (isEnabled == 0) {
-    // toggleStatus.innerText = "STATUS: Disabled";
-    button.innerText = "ENABLE";
-    button.className = "enable";
+function updateUi() {
+  if (storage.getItem(KEY) == 1) {
+    toggleButton.innerText = "DISABLE";
+    toggleButton.className = "disable";
+  } else {
+    toggleButton.innerText = "ENABLE";
+    toggleButton.className = "enable";
   }
 }
+
+updateUi();

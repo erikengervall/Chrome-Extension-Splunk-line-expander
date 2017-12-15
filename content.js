@@ -1,10 +1,9 @@
-var inProgress = false;
 var intervalId = null;
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.enabled === undefined) return;
-  window.localStorage.setItem("SPLUNK_INTERVAL_ENABLED", request.enabled);
-  request.enabled == 1 ? tryInitInterval() : clearInterval(intervalId);
+  if (request.enabled === undefined) return console.error("request undefined");
+  storage.setItem(KEY, request.enabled);
+  storage.getItem(KEY) == 1 ? startInterval() : stopInterval(intervalId);
   sendResponse("Thanks Mr. Extension");
 });
 
@@ -16,36 +15,37 @@ function closeOverlay() {
 }
 
 function clickButtons(className) {
+  var done = true;
+
   var buttons = document.getElementsByClassName(className);
-  var hadItemWithLine = false;
   for (var i = 0; i < buttons.length; i++) {
     var dataPath = buttons[i].getAttribute("data-path");
     if (dataPath && dataPath.startsWith("line")) {
       buttons[i].click();
-      hadItemWithLine = true;
+      done = false;
     }
   }
-  if (!hadItemWithLine) {
-    closeOverlay();
-    inProgress = false;
-    return console.log("Splunk line-expander done");
+
+  if (done || storage.getItem(KEY) == 0) {
+    return closeOverlay();
   }
+
   setTimeout(function() {
     clickButtons(className);
   }, 50);
 }
 
-function tryInitInterval() {
-  if (window.localStorage.getItem("SPLUNK_INTERVAL_ENABLED") == 1) {
+function startInterval() {
+  clickButtons("jsexpands");
+  if (intervalId) stopInterval(intervalId);
+  intervalId = setInterval(function() {
     clickButtons("jsexpands");
-    intervalId = setInterval(function() {
-      clickButtons("jsexpands");
-    }, 1000);
-  }
+  }, 750);
 }
 
-if (window.localStorage.getItem("SPLUNK_INTERVAL_ENABLED") === null) {
-  window.localStorage.setItem("SPLUNK_INTERVAL_ENABLED", 1); // set default value
+function stopInterval() {
+  clearInterval(intervalId);
+  intervalId = null;
 }
 
-tryInitInterval();
+if (storage.getItem(KEY) == 1) startInterval();
