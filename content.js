@@ -1,51 +1,58 @@
 var intervalId = null;
+var timeoutId = null;
+var OVERLAY_CLASS_NAME = "modalize-table-overlay";
 
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  if (request.enabled === undefined) return console.error("request undefined");
-  storage.setItem(KEY, request.enabled);
-  storage.getItem(KEY) == 1 ? startInterval() : stopInterval(intervalId);
+  var data = request.data;
+  if (request.data === undefined)
+    return console.error("request.data undefined");
+
+  setData(data);
+  data.enabled ? startInterval(data.depth) : stopInterval(intervalId);
   sendResponse("Thanks Mr. Extension");
 });
 
 function closeOverlay() {
-  var overlays = document.getElementsByClassName("modalize-table-overlay");
+  var overlays = document.getElementsByClassName(OVERLAY_CLASS_NAME);
   for (var i = 0; i < overlays.length; i++) {
     overlays[i].click();
   }
 }
 
-function clickButtons(className) {
-  var done = true;
-
-  var buttons = document.getElementsByClassName(className);
-  for (var i = 0; i < buttons.length; i++) {
-    var dataPath = buttons[i].getAttribute("data-path");
-    if (dataPath && dataPath.startsWith("line")) {
-      buttons[i].click();
-      done = false;
+function clickButtons(depth) {
+  if (depth < 0) depth = 10;
+  for (var i = 1; i <= depth; i++) {
+    var expandButtons = document.querySelectorAll(
+      `.key.level-${i} > .jsexpands[data-path^="line"]`
+    );
+    for (var j = 0; j < expandButtons.length; j++) {
+      expandButtons[j].click();
     }
   }
 
-  if (done || storage.getItem(KEY) == 0) {
-    return closeOverlay();
+  var collapseButtons = document.querySelectorAll(
+    `.key.level-${depth + 1} > .jscollapse[data-path^="line"]`
+  );
+  for (var j = 0; j < collapseButtons.length; j++) {
+    collapseButtons[j].click();
   }
 
-  setTimeout(function() {
-    clickButtons(className);
-  }, 50);
+  closeOverlay();
 }
 
-function startInterval() {
-  clickButtons("jsexpands");
+function startInterval(depth) {
   if (intervalId) stopInterval(intervalId);
   intervalId = setInterval(function() {
-    clickButtons("jsexpands");
-  }, 750);
+    clickButtons(depth);
+  }, 100);
 }
 
 function stopInterval() {
   clearInterval(intervalId);
+  clearTimeout(timeoutId);
   intervalId = null;
+  timeoutId = null;
 }
 
-if (storage.getItem(KEY) == 1) startInterval();
+var data = getData();
+if (data.enabled) startInterval(data.depth);

@@ -2,9 +2,8 @@
   "manifest_version": 2,
 
   "name": "Splunk line-expander",
-  "description":
-    "Programatically presses the [+] of all message.line items in Splunk",
-  "version": "1.3",
+  "description": "Toggles Lines in Splunk. Depth is set by the user.",
+  "version": "1.4",
 
   "browser_action": {
     "default_icon": "icon.png",

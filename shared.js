@@ -1,19 +1,30 @@
-var KEY_PREFIX = "SPLUNK_LINE_EXPANDER_ENABLED";
+var KEY_PREFIX = "SPLUNK_LINE_EXPANDER";
 var VERSION = chrome.runtime.getManifest().version;
 var KEY = KEY_PREFIX + "_" + VERSION;
 var storage = window.localStorage;
 
-function clearOldKeys() {
-  Object.keys(localStorage).map(key => {
+function setData(dataObject) {
+  storage.setItem(KEY, JSON.stringify(dataObject));
+  return dataObject;
+}
+
+function getData() {
+  return JSON.parse(storage.getItem(KEY));
+}
+
+function clearOldData() {
+  Object.keys(storage).map(key => {
     if (key.indexOf(KEY_PREFIX) !== -1 && key.indexOf(VERSION) === -1)
-      localStorage.removeItem(key);
+      storage.removeItem(key);
   });
 }
 
-function setDefaultKey() {
-  if (window.localStorage.getItem(KEY) === null)
-    window.localStorage.setItem(KEY, 1);
+function setDefaultData() {
+  var defaultData = { enabled: true, depth: -1 };
+
+  var data = getData();
+  if (!data) setData(defaultData);
 }
 
-clearOldKeys();
-setDefaultKey();
+clearOldData();
+setDefaultData();
